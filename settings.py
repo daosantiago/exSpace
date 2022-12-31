@@ -27,6 +27,9 @@ stages = [
             'image_count': 3,
             'speed': 0.5
         },
+        'menu': {
+            'backgeound': ''
+        }
     }
 ]
 
@@ -51,7 +54,8 @@ ships_settings = {
         'energy': 1,
         'speed': 0.3,
         'images': 4,
-        'image_path': './assets/spritesheet.png'
+        'image_path': './assets/spritesheet.png',
+        'can_shoot': True,
     },
 
     'enemy2': {
@@ -63,7 +67,8 @@ ships_settings = {
         'speed': 0.1,
         'images': 4,
         'image_path': './assets/spritesheet.png',
-        'energy': 1
+        'energy': 1,
+        'can_shoot': True,
     },
 
     'enemy3': {
@@ -74,7 +79,8 @@ ships_settings = {
         'energy': 5,
         'speed': 0.1,
         'images': 3,
-        'image_path': './assets/spritesheet.png'
+        'image_path': './assets/spritesheet.png',
+        'can_shoot': True,
     },
 
 
