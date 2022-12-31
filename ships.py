@@ -1,6 +1,5 @@
 import time
 
-from main import GameObject
 from settings import *
 from ship import *
 from sounds import *
@@ -39,9 +38,16 @@ class Enemy(Ship):
     def __init__(self, game, label) -> None:
         super().__init__(game, label)
         self.width, self.height = ships_settings[label]['width'], ships_settings[label]['height']
-        self.bullets = []
-        self.dead = False
         self.last_update_time = 0
+        self.can_shoot = ships_settings[label]['can_shoot']
+
+    def shoot(self):
+        if self.can_shoot:
+            elapsed_time = time.time() - self.last_shoot_time
+            if len(self.bullets) < 1 and elapsed_time >= 5:
+                self.bullets.append(Bullet(self))
+                self.last_shoot_time = time.time()
+                self.shoot_sound.play()
 
     def update(self):
         if self.energy > 0:
@@ -51,25 +57,38 @@ class Enemy(Ship):
         current_time = pg.time.get_ticks()
         elapsed_time = current_time - self.last_update_time
 
-        if self.energy == 0 and self.dead == False:
-            self.dead = True
-            self.images = self.explosion_images
-            self.rect = pg.Surface.get_rect(self.images[0])
-            self.current_frame = 0
+        self.shoot()
+        for bullet in self.bullets:
+            if bullet.y > 480:
+                self.bullets.remove(bullet)
+            else:
+                bullet.update()
 
-            if self.width != self.rect.width or self.height != self.rect.height:
-                diff_x = self.rect.width - self.width
-                diff_y = self.rect.height - self.height
-                self.x = self.x - (diff_x / 2)
-                self.y = self.y - (diff_y / 2)
+        if self.energy == 0 and self.dead == False:
+            self.die()
 
         # Se o tempo transcorrido for maior que o tempo de exibição do quadro atual, atualize o quadro atual
-        if elapsed_time > frame_duration:
+        if elapsed_time > frame_duration and self.current_frame != 24:
             self.current_frame = (self.current_frame + 1) % len(self.images)
             self.last_update_time = pg.time.get_ticks()
 
         if self.current_frame == 24:
-            self.game.ships.remove(self)
+            if len(self.bullets) == 0:
+                self.game.ships.remove(self)
+
+    def die(self):
+        self.explosion_sound.play()
+        self.dead = True
+        self.images = self.explosion_images
+        self.rect = pg.Surface.get_rect(self.images[0])
+        self.current_frame = 0
+        self.can_collide = False
+
+        if self.width != self.rect.width or self.height != self.rect.height:
+            diff_x = self.rect.width - self.width
+            diff_y = self.rect.height - self.height
+            self.x = self.x - (diff_x / 2)
+            self.y = self.y - (diff_y / 2)
 
 
 class Player(Ship):
@@ -83,7 +102,6 @@ class Player(Ship):
         self.last_shoot_time = 0
         self.last_update_time = 0
         self.lives = ships_settings[label]['lives']
-        self.dead = False
         self.just_born = False
         self.born_time = 0
         self.born_duration = 3
@@ -138,6 +156,9 @@ class Player(Ship):
     def die(self):
         current_time = pg.time.get_ticks()
         elapsed_time = current_time - self.last_update_time
+        self.lives -= 1
+        self.explosion_sound.play()
+        self.can_collide = False
 
         self.swap_images()
         self.dead = True
@@ -156,6 +177,7 @@ class Player(Ship):
         self.energy = 10
         self.dead = False
         self.just_born = True
+        self.can_collide = False
         self.born_time = time.time()
         self.swap_images()
 
@@ -163,22 +185,23 @@ class Player(Ship):
         elapsed_time = time.time() - self.born_time
         if elapsed_time > self.born_duration:
             self.just_born = False
+            self.can_collide = True
 
         self.to_alpha()
 
-    def draw(self) -> None:
-        super().draw()
-        for bullet in self.bullets:
-            bullet.draw()
-
     def fire(self, keys):
         elapsed_time = time.time() - self.last_shoot_time
-        if keys[pg.K_SPACE]:
-            if len(self.bullets) < 30 and elapsed_time >= 0.05:
-                self.bullets.append(GameObject(self))
-                self.last_shoot_time = time.time()
+        if not self.dead:
+            if keys[pg.K_SPACE]:
+                if len(self.bullets) < 30 and elapsed_time >= 0.05:
+                    self.bullets.append(Bullet(self))
+                    self.last_shoot_time = time.time()
+                    self.shoot_sound.play()
 
     def move(self, keys) -> None:
+        if self.dead:
+            return
+
         speed = round(self.speed * self.game.delta_time)
         if keys[pg.K_UP]:
             if self.y > (self.game.height * 0.6):
