@@ -1,5 +1,80 @@
 import pygame as pg
 
+from sounds import *
+
+
+class Menu:
+    def __init__(self):
+        self.texts = [('Start Game', 'play'), ("Quit", 'quit')]
+        self.options = self.createOptions()
+        self.background = pg.image.load('./assets/menu_bg.jpg')
+        self.bg_sound = Sound('menu')
+        self.bg_sound.play()
+
+    def update(self):
+        pass
+
+    def select(self, opt):
+        return opt.command
+
+    def hover(self, pos):
+        for opt in self.options:
+            if opt.rect.collidepoint(pos):
+                opt.highlight()
+                return opt
+            else:
+                opt.downlight()
+
+    def draw(self, game):
+        game.screen.blit(self.background, (0, 0))
+        for opt in self.options:
+            opt.draw(game)
+
+    def createOptions(self):
+        options = []
+        for i, opt in enumerate(self.texts):
+            options.append(MenuOption(opt, i))
+
+        return options
+
+
+class MenuOption():
+    def __init__(self, opt, i):
+        self.text = opt[0]
+        self.command = opt[1]
+        self.selected = False
+        self.color = 'white'
+        self.image = pg.Surface((100, 100))
+        self.rect = pg.Surface.get_rect(self.image)
+        self.x = 0
+        self.y = 0
+        self.index = i
+        self.font = pg.font.Font(None, 36)
+        self.rect = pg.Surface.get_rect(self.image)
+
+    def highlight(self):
+        self.color = 'orange'
+
+    def downlight(self):
+        self.color = 'white'
+
+    def update(self):
+        pass
+
+    def set_selected(self, color):
+        self.selected = True
+        self.color = 'orange'
+
+    def draw(self, game):
+        self.image = self.font.render(self.text, True, self.color)
+        self.rect = pg.Surface.get_rect(self.image)
+        self.x = game.width/2 - self.rect.center[0]
+        self.y = game.height/2 + (self.index * self.rect.height +
+                                  (self.index*4)) - self.rect.center[1]
+        self.rect.x, self.rect.y = self.x, self.y
+        # Desenhe a surface do texto na tela, centralizando-a
+        game.screen.blit(self.image, (self.x, self.y))
+
 
 class LifeBar():
     def __init__(self, game, p):
@@ -32,8 +107,9 @@ class LifeBar():
             self.energy = self.player.energy
             self.width = self.energy * 10
             self.image.fill((self.color))
-            self.image = pg.transform.scale(
-                self.image, (self.width, self.height))
+            if self.width > 0 and self.height > 0:
+                self.image = pg.transform.scale(
+                    self.image, (self.width, self.height))
 
         if self.energy < 3:
             self.blink()
@@ -75,6 +151,7 @@ class Gameover():
         self.rect = pg.Surface.get_rect(self.image)
 
     def draw(self):
+        self.game.screen.fill('black')
         self.image = self.font.render(f'GAME OVER', True, 'white')
         self.rect = pg.Surface.get_rect(self.image)
         self.x = self.game.width/2 - self.rect.center[0]
