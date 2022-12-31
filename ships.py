@@ -50,12 +50,12 @@ class Enemy(Ship):
                 self.shoot_sound.play()
 
     def update(self):
-        if self.energy > 0:
-            self.y += self.speed
-            self.rect.topleft = self.x, self.y
-
         current_time = pg.time.get_ticks()
         elapsed_time = current_time - self.last_update_time
+
+        if not self.dead:
+            self.set_y(self.y + self.speed)
+            self.rect.topleft = self.get_pos()
 
         self.shoot()
         for bullet in self.bullets:
@@ -77,6 +77,7 @@ class Enemy(Ship):
                 self.game.ships.remove(self)
 
     def die(self):
+        self.set_energy(0)
         self.explosion_sound.play()
         self.dead = True
         self.images = self.explosion_images
@@ -87,15 +88,15 @@ class Enemy(Ship):
         if self.width != self.rect.width or self.height != self.rect.height:
             diff_x = self.rect.width - self.width
             diff_y = self.rect.height - self.height
-            self.x = self.x - (diff_x / 2)
-            self.y = self.y - (diff_y / 2)
+            x = self.x - (diff_x / 2)
+            y = self.y - (diff_y / 2)
+            self.set_pos(x, y)
 
 
 class Player(Ship):
     def __init__(self, game, label) -> None:
         super().__init__(game, label)
-        self.x = (self.game.width / 2) - (self.width / 2)
-        self.y = 400
+        self.set_pos((self.game.width / 2) - (self.width / 2), 400)
         self.points = 0
         self.bullets = []
         self.rect = pg.Surface.get_rect(self.images[0])
@@ -114,7 +115,7 @@ class Player(Ship):
         keys = pg.key.get_pressed()
         self.fire(keys)
         self.move(keys)
-        self.rect.topleft = self.x, self.y
+        self.rect.topleft = self.get_pos()
 
         if self.energy == 0 and not self.dead:
             self.die()
@@ -156,28 +157,30 @@ class Player(Ship):
     def die(self):
         current_time = pg.time.get_ticks()
         elapsed_time = current_time - self.last_update_time
-        self.lives -= 1
+        self.set_energy(0)
         self.explosion_sound.play()
+        self.lives -= 1
+        self.dead = True
         self.can_collide = False
 
         self.swap_images()
-        self.dead = True
+
         if elapsed_time > frame_duration:
             self.current_frame = (self.current_frame + 1) % len(self.images)
             self.last_update_time = pg.time.get_ticks()
 
     def born(self):
-        self.x = (self.game.width / 2) - (self.width / 2)
-        self.y = 400
+        x = (self.game.width / 2) - (self.width / 2)
+        y = 400
+        self.set_pos(x, y)
         self.bullets = []
         self.rect = pg.Surface.get_rect(self.images[0])
         self.last_shoot_time = 0
         self.last_update_time = 0
         self.current_frame = 0
-        self.energy = 10
+        self.set_energy(10)
         self.dead = False
         self.just_born = True
-        self.can_collide = False
         self.born_time = time.time()
         self.swap_images()
 
@@ -205,13 +208,13 @@ class Player(Ship):
         speed = round(self.speed * self.game.delta_time)
         if keys[pg.K_UP]:
             if self.y > (self.game.height * 0.6):
-                self.y -= speed
+                self.set_y(self.y - speed)
         if keys[pg.K_LEFT]:
             if self.x > 1:
-                self.x -= speed
+                self.set_x(self.x - speed)
         if keys[pg.K_RIGHT]:
             if self.x < self.game.width - 32:
-                self.x += speed
+                self.set_x(self.x + speed)
         if keys[pg.K_DOWN]:
             if self.y < (self.game.height - 50):
-                self.y += speed
+                self.set_y(self.y + speed)

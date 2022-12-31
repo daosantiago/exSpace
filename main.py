@@ -79,26 +79,26 @@ class Game:
 
     def check_hits(self):
         for ship in self.ships:
-            if ship.label in ('enemy1', 'enemy2', 'enemy3'):
+            if ship.label != 'player':
+                if not ship.dead and self.player.can_collide and ship.rect.colliderect(self.player.rect):
+                    ship.die()
+                    self.player.die()
+
                 for bullet in ship.bullets:
                     if bullet.rect.colliderect(self.player.rect) and self.player.can_collide:
                         ship.bullets.remove(bullet)
-                        self.player.energy -= 1
-
-                if not ship.dead and self.player.can_collide and ship.rect.colliderect(self.player.rect):
-                    ship.energy = 0
-                    self.player.energy = 0
+                        self.player.get_hit()
 
                 for bullet in self.player.bullets:
                     if not ship.dead and ship.rect.colliderect(bullet.rect):
-                        ship.energy -= 1
+                        ship.get_hit()
                         self.player.bullets.remove(bullet)
 
                         if ship.energy == 0:
                             self.player.points += 1
 
                 if ship.y > self.height + ship.height:
-                    self.player.energy -= 1
+                    self.player.get_hit()
                     self.ships.remove(ship)
 
     def updateShips(self):
@@ -139,6 +139,9 @@ class Game:
         self.check_enemies()
         self.check_hits()
 
+        if self.player.energy == 0 and self.player.lives == 0:
+            self.state = 'gameover'
+
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
                 pg.quit()
@@ -168,34 +171,46 @@ class Game:
                 if event.type == pg.QUIT or (event.type == pg.KEYDOWN):
                     return False
 
-    def loop(self):
-        self.state = self.welcome()
-
+    def play(self):
         player = Player(self, 'player')
         self.player = player
         self.ships.append(self.player)
         self.panel = Panel(self, self.player)
+        self.bg_music.play()
 
-        if self.state == 'play':
-            self.bg_music.play()
         while self.state == 'play':
             self.check_events()
             self.update()
             self.draw()
 
-        if self.state == 'gameover':
-            game.over()
+        del self.player
+        self.ships.clear()
+        del self.panel
+        self.bg_music.stop()
+
+    def loop(self):
+        while self.state != 'quit':
+            self.state = self.welcome()
+
+            if self.state == 'play':
+                self.play()
+
+            if self.state == 'gameover':
+                game.over()
 
     def over(self):
         over = Gameover(self)
         over.draw()
         pg.display.flip()
 
-        while True:
+        loop = True
+
+        while loop:
             for event in pg.event.get():
                 if event.type == pg.QUIT or (event.type == pg.KEYDOWN):
-                    pg.quit()
-                    sys.exit()
+                    loop = False
+                    self.state = 'menu'
+                    self.bg_music.stop()
 
 
 if __name__ == '__main__':

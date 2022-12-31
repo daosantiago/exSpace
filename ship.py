@@ -7,8 +7,8 @@ class Ship:
         self.label = label
         self.game = game
         self.width, self.height = ships_settings[label]['width'], ships_settings[label]['height']
-        self.x, self.y = random.randint(10, 400), -32
-        self.energy = ships_settings[label]['energy']
+        self.__x, self.__y = random.randint(10, 400), -32
+        self.__energy = ships_settings[label]['energy']
         self.speed = ships_settings[label]['speed']
         self.images = self.__load_images(label)
         self.current_frame = 0
@@ -55,9 +55,40 @@ class Ship:
         self.images = self.explosion_images
         self.explosion_images = aux
 
+    @property
+    def y(self):
+        return self.__y
+
+    def set_y(self, y):
+        self.__y = y
+
+    @property
+    def x(self):
+        return self.__x
+
+    def set_x(self, x):
+        self.__x = x
+
+    def get_pos(self):
+        return (self.__x, self.__y)
+
+    def set_pos(self, x, y):
+        self.__x = x
+        self.__y = y
+
+    @property
+    def energy(self):
+        return self.__energy
+
+    def set_energy(self, energy):
+        self.__energy = energy
+
+    def get_hit(self):
+        self.__energy = self.__energy - 1
+
     def draw(self):
         self.game.screen.blit(
-            self.images[self.current_frame], (self.x, self.y))
+            self.images[self.current_frame], (self.__x, self.__y))
 
         for bullet in self.bullets:
             bullet.draw()
