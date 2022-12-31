@@ -3,6 +3,36 @@ import time
 from main import GameObject
 from settings import *
 from ship import *
+from sounds import *
+
+
+class Bullet():
+    def __init__(self, p=None) -> None:
+        self.game = p.game
+        self.width, self.height = 0, 0
+        self.x = p.x + (p.width / 2) - 4
+        self.y = p.y
+        self.speed = 3 if p.label == 'player' else -1
+        self.image = self.load_image('bullet')
+        self.rect = pg.Surface.get_rect(self.image)
+        self.visible = True
+
+    def load_image(self, label):
+        if label == 'bullet':
+            self.width, self.height = 8, 8
+            posx, posy = 56, 80
+
+        sprite_rect = pg.Rect(posx, posy, self.width, self.height)
+        image = pg.image.load("./assets/spritesheet.png")
+        image = image.subsurface(sprite_rect)
+        return image
+
+    def update(self):
+        self.y -= self.speed
+        self.rect.topleft = self.x, self.y
+
+    def draw(self):
+        self.game.screen.blit(self.image, (self.x, self.y))
 
 
 class Enemy(Ship):
