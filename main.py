@@ -2,38 +2,11 @@ import random
 import sys
 import time
 
+from pygame.locals import *
+
 from settings import *
 from ships import *
 from UI import *
-
-
-class GameObject():
-    def __init__(self, p=None) -> None:
-        self.game = p.game
-        self.width, self.height = 0, 0
-        self.x = p.x + (p.width / 2) - 4
-        self.y = p.y
-        self.speed = 3
-        self.image = self.load_image('bullet')
-        self.rect = pg.Surface.get_rect(self.image)
-        self.visible = True
-
-    def load_image(self, label):
-        if label == 'bullet':
-            self.width, self.height = 8, 8
-            posx, posy = 56, 80
-
-        sprite_rect = pg.Rect(posx, posy, self.width, self.height)
-        image = pg.image.load("./assets/spritesheet.png")
-        image = image.subsurface(sprite_rect)
-        return image
-
-    def update(self):
-        self.y -= self.speed
-        self.rect.topleft = self.x, self.y
-
-    def draw(self):
-        self.game.screen.blit(self.image, (self.x, self.y))
 
 
 class Background:
@@ -102,11 +75,17 @@ class Game:
         self.last_enemie_creation = 0
         self.panel = None
         self.state = GameState(self)
+        self.bg_music = Sound('play')
 
     def check_hits(self):
         for ship in self.ships:
             if ship.label in ('enemy1', 'enemy2', 'enemy3'):
-                if not ship.dead and ship.rect.colliderect(self.player.rect):
+                for bullet in ship.bullets:
+                    if bullet.rect.colliderect(self.player.rect) and self.player.can_collide:
+                        ship.bullets.remove(bullet)
+                        self.player.energy -= 1
+
+                if not ship.dead and self.player.can_collide and ship.rect.colliderect(self.player.rect):
                     ship.energy = 0
                     self.player.energy = 0
 
@@ -166,20 +145,46 @@ class Game:
                 sys.exit()
             # if event.type == pg.KEYDOWN and (event.key == pg.K_UP or event.key == pg.K_DOWN or event.key == pg.K_LEFT or event.key == pg.K_RIGHT):
             if event.type == pg.KEYDOWN and (event.key == pg.K_DELETE):
-                self.state.state = 'end'
+                self.state = 'gameover'
+
+    def welcome(self):
+        menu = Menu()
+
+        while True:
+            menu.draw(self)
+            pg.display.flip()
+
+            for event in pg.event.get():
+                pos = pg.mouse.get_pos()
+                hovered = menu.hover(pos)
+                if hovered:
+                    if (event.type == MOUSEBUTTONDOWN):
+                        if event.button == 1:
+                            text = menu.select(hovered)
+                            menu.bg_sound.stop()
+                            return text
+
+                    menu.update()
+                if event.type == pg.QUIT or (event.type == pg.KEYDOWN):
+                    return False
 
     def loop(self):
-        # self.state = self.welcome()
+        self.state = self.welcome()
 
         player = Player(self, 'player')
         self.player = player
         self.ships.append(self.player)
         self.panel = Panel(self, self.player)
 
-        while self.state.state == 'play':
+        if self.state == 'play':
+            self.bg_music.play()
+        while self.state == 'play':
             self.check_events()
             self.update()
             self.draw()
+
+        if self.state == 'gameover':
+            game.over()
 
     def over(self):
         over = Gameover(self)
@@ -196,5 +201,3 @@ class Game:
 if __name__ == '__main__':
     game = Game()
     game.loop()
-
-    game.over()
