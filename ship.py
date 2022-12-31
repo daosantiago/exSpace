@@ -1,4 +1,5 @@
 from settings import *
+from sounds import *
 
 
 class Ship:
@@ -9,12 +10,18 @@ class Ship:
         self.x, self.y = random.randint(10, 400), -32
         self.energy = ships_settings[label]['energy']
         self.speed = ships_settings[label]['speed']
-        self.images = self.load_images(label)
+        self.images = self.__load_images(label)
         self.current_frame = 0
-        self.explosion_images = self.load_explosion_images()
+        self.explosion_images = self.__load_explosion_images()
+        self.explosion_sound = Sound('explode')
         self.rect = pg.Surface.get_rect(self.images[0])
+        self.shoot_sound = Sound('shoot')
+        self.bullets = []
+        self.last_shoot_time = 0
+        self.can_collide = True
+        self.dead = False
 
-    def load_images(self, label):
+    def __load_images(self, label):
         num_images = ships_settings[label]['images']
         images_list = []
         image = pg.image.load(ships_settings[label]['image_path'])
@@ -29,7 +36,7 @@ class Ship:
 
         return images_list
 
-    def load_explosion_images(self):
+    def __load_explosion_images(self):
         image = pg.image.load("./assets/explode.png")
         images_list = []
         width = explosion_settings['width']
@@ -51,3 +58,6 @@ class Ship:
     def draw(self):
         self.game.screen.blit(
             self.images[self.current_frame], (self.x, self.y))
+
+        for bullet in self.bullets:
+            bullet.draw()
