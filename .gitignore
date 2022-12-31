@@ -1,3 +1,5 @@
 /space_starter_kit_0
 /.vscode
 /venv
+.vscode/
+__pycache__/*
