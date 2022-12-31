@@ -20,6 +20,8 @@ class Ship:
         self.last_shoot_time = 0
         self.can_collide = True
         self.dead = False
+        self.max_bullets = ships_settings[label]['max_bullets']
+        self.time_to_shoot = ships_settings[label]['time_to_shoot']
 
     def __load_images(self, label):
         num_images = ships_settings[label]['images']
@@ -54,6 +56,28 @@ class Ship:
         aux = self.images
         self.images = self.explosion_images
         self.explosion_images = aux
+
+    def got_shot(self, bullets):
+        if self.can_collide and not self.dead:
+            for bullet in bullets:
+                if self.rect.colliderect(bullet.rect):
+                    return bullet
+
+        return False
+
+    def collides_with(self, ships):
+        if not isinstance(ships, list):
+            ships = [ships]
+
+        for ship in ships:
+            if self.can_collide and ship.can_collide:
+                if not self.dead and not ship.dead:
+                    return self.rect.colliderect(ship.rect)
+
+        return False
+
+    def kill_bullet(self, bullet):
+        self.bullets.remove(bullet)
 
     @property
     def y(self):

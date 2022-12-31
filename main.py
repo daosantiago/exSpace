@@ -80,22 +80,22 @@ class Game:
     def check_hits(self):
         for ship in self.ships:
             if ship.label != 'player':
-                if not ship.dead and self.player.can_collide and ship.rect.colliderect(self.player.rect):
+                if ship.collides_with(self.player):
                     ship.die()
                     self.player.die()
-
-                for bullet in ship.bullets:
-                    if bullet.rect.colliderect(self.player.rect) and self.player.can_collide:
-                        ship.bullets.remove(bullet)
-                        self.player.get_hit()
-
-                for bullet in self.player.bullets:
-                    if not ship.dead and ship.rect.colliderect(bullet.rect):
+                else:
+                    # get a bullet if there's collision, else false
+                    bullet = ship.got_shot(self.player.bullets)
+                    if bullet:
                         ship.get_hit()
-                        self.player.bullets.remove(bullet)
+                        self.player.kill_bullet(bullet)
+                        if ship.dead:
+                            self.player.make_point()
 
-                        if ship.energy == 0:
-                            self.player.points += 1
+                    bullet = self.player.got_shot(ship.bullets)
+                    if bullet:
+                        self.player.get_hit()
+                        ship.kill_bullet(bullet)
 
                 if ship.y > self.height + ship.height:
                     self.player.get_hit()
@@ -130,6 +130,7 @@ class Game:
 
         if elapsed_time >= self.enemy_creation_time:
             self.ships.append(Enemy(self, enemies[enemy_index]))
+            print(f'New enemy {enemy_index}')
             self.last_enemie_creation = time.time()
 
             if self.enemy_creation_time > 1:

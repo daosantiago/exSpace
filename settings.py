@@ -43,7 +43,9 @@ ships_settings = {
         'energy': 10,
         'speed': 0.3,
         'images': 4,
-        'image_path': './assets/spritesheet.png'
+        'image_path': './assets/spritesheet.png',
+        'max_bullets': 30,
+        'time_to_shoot': 0.05
     },
 
     'enemy1': {
@@ -56,6 +58,8 @@ ships_settings = {
         'images': 4,
         'image_path': './assets/spritesheet.png',
         'can_shoot': True,
+        'max_bullets': 30,
+        'time_to_shoot': 5
     },
 
     'enemy2': {
@@ -69,6 +73,8 @@ ships_settings = {
         'image_path': './assets/spritesheet.png',
         'energy': 1,
         'can_shoot': True,
+        'max_bullets': 30,
+        'time_to_shoot': 5
     },
 
     'enemy3': {
@@ -81,6 +87,8 @@ ships_settings = {
         'images': 3,
         'image_path': './assets/spritesheet.png',
         'can_shoot': True,
+        'max_bullets': 30,
+        'time_to_shoot': 3
     },
 
 

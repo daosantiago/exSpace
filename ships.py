@@ -40,11 +40,12 @@ class Enemy(Ship):
         self.width, self.height = ships_settings[label]['width'], ships_settings[label]['height']
         self.last_update_time = 0
         self.can_shoot = ships_settings[label]['can_shoot']
+        self.last_shoot_time = time.time() + 0.001
 
     def shoot(self):
         if self.can_shoot:
             elapsed_time = time.time() - self.last_shoot_time
-            if len(self.bullets) < 1 and elapsed_time >= 5:
+            if not self.dead and len(self.bullets) < self.max_bullets and elapsed_time >= self.time_to_shoot:
                 self.bullets.append(Bullet(self))
                 self.last_shoot_time = time.time()
                 self.shoot_sound.play()
@@ -110,6 +111,9 @@ class Player(Ship):
         self.last_blink_time = 0
         self.toggle = False
         self.update()
+
+    def make_point(self) -> None:
+        self.points += 1
 
     def update(self) -> None:
         keys = pg.key.get_pressed()
@@ -196,7 +200,7 @@ class Player(Ship):
         elapsed_time = time.time() - self.last_shoot_time
         if not self.dead:
             if keys[pg.K_SPACE]:
-                if len(self.bullets) < 30 and elapsed_time >= 0.05:
+                if len(self.bullets) < self.max_bullets and elapsed_time >= self.time_to_shoot:
                     self.bullets.append(Bullet(self))
                     self.last_shoot_time = time.time()
                     self.shoot_sound.play()
