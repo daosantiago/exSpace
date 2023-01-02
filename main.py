@@ -130,7 +130,6 @@ class Game:
 
         if elapsed_time >= self.enemy_creation_time:
             self.ships.append(Enemy(self, enemies[enemy_index]))
-            print(f'New enemy {enemy_index}')
             self.last_enemie_creation = time.time()
 
             if self.enemy_creation_time > 1:
