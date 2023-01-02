@@ -69,7 +69,7 @@ class Ship:
 
     @property
     def bullets(self):
-        return self.bulltes
+        return self.__bullets
 
     def set_x(self, x):
         self.__x = x
@@ -108,6 +108,9 @@ class Ship:
                     return self.rect.colliderect(ship.rect)
 
         return False
+
+    def add_bullet(self, bullet):
+        self.__bullets.append(bullet)
 
     def kill_bullet(self, bullet):
         self.__bullets.remove(bullet)

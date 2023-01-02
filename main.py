@@ -89,7 +89,7 @@ class Game:
                     if bullet:
                         ship.get_hit()
                         self.player.kill_bullet(bullet)
-                        if ship.dead:
+                        if ship.energy == 0:
                             self.player.make_point()
 
                     bullet = self.player.got_shot(ship.bullets)

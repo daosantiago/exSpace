@@ -46,7 +46,7 @@ class Enemy(Ship):
         if self.can_shoot:
             elapsed_time = time.time() - self.last_shoot_time
             if not self.dead and len(self.bullets) < self.max_bullets and elapsed_time >= self.time_to_shoot:
-                self.bullets.append(Bullet(self))
+                self.add_bullet(Bullet(self))
                 self.last_shoot_time = time.time()
                 self.shoot_sound.play()
 
@@ -56,12 +56,12 @@ class Enemy(Ship):
 
         if not self.dead:
             self.set_y(self.y + self.speed)
-            self.rect.topleft = self.get_pos()
+            self.rect.topleft = self.pos
 
         self.shoot()
         for bullet in self.bullets:
             if bullet.y > 480:
-                self.bullets.remove(bullet)
+                self.__bullets.remove(bullet)
             else:
                 bullet.update()
 
@@ -99,7 +99,6 @@ class Player(Ship):
         super().__init__(game, label)
         self.set_pos((self.game.width / 2) - (self.width / 2), 400)
         self.points = 0
-        self.bullets = []
         self.rect = pg.Surface.get_rect(self.images[0])
         self.last_shoot_time = 0
         self.last_update_time = 0
@@ -119,7 +118,7 @@ class Player(Ship):
         keys = pg.key.get_pressed()
         self.fire(keys)
         self.move(keys)
-        self.rect.topleft = self.get_pos()
+        self.rect.topleft = self.pos
 
         if self.energy == 0 and not self.dead:
             self.die()
