@@ -16,7 +16,7 @@ class Ship:
         self.explosion_sound = Sound('explode')
         self.rect = pg.Surface.get_rect(self.images[0])
         self.shoot_sound = Sound('shoot')
-        self.bullets = []
+        self.__bullets = []
         self.last_shoot_time = 0
         self.can_collide = True
         self.dead = False
@@ -51,6 +51,39 @@ class Ship:
             images_list.append(sub_image)
         return images_list
 
+    @property
+    def x(self):
+        return self.__x
+
+    @property
+    def y(self):
+        return self.__y
+
+    @property
+    def pos(self):
+        return (self.__x, self.__y)
+
+    @property
+    def energy(self):
+        return self.__energy
+
+    @property
+    def bullets(self):
+        return self.bulltes
+
+    def set_x(self, x):
+        self.__x = x
+
+    def set_y(self, y):
+        self.__y = y
+
+    def set_pos(self, x, y):
+        self.__x = x
+        self.__y = y
+
+    def set_energy(self, energy):
+        self.__energy = energy
+
     def swap_images(self):
         self.current_frame = 0
         aux = self.images
@@ -77,35 +110,7 @@ class Ship:
         return False
 
     def kill_bullet(self, bullet):
-        self.bullets.remove(bullet)
-
-    @property
-    def y(self):
-        return self.__y
-
-    def set_y(self, y):
-        self.__y = y
-
-    @property
-    def x(self):
-        return self.__x
-
-    def set_x(self, x):
-        self.__x = x
-
-    def get_pos(self):
-        return (self.__x, self.__y)
-
-    def set_pos(self, x, y):
-        self.__x = x
-        self.__y = y
-
-    @property
-    def energy(self):
-        return self.__energy
-
-    def set_energy(self, energy):
-        self.__energy = energy
+        self.__bullets.remove(bullet)
 
     def get_hit(self):
         self.__energy = self.__energy - 1
@@ -114,5 +119,5 @@ class Ship:
         self.game.screen.blit(
             self.images[self.current_frame], (self.__x, self.__y))
 
-        for bullet in self.bullets:
+        for bullet in self.__bullets:
             bullet.draw()
