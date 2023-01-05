@@ -10,12 +10,12 @@ FILES = {
 
 class Sound():
     def __init__(self, song) -> None:
-        self.sound = pygame.mixer.Sound(FILES[song])
-        self.sound.set_volume(0.1)
-        self.loop = -1 if song == 'play' else 0
+        self.__sound = pygame.mixer.Sound(FILES[song])
+        self.__sound.set_volume(0.1)
+        self.__loop = -1 if song == 'play' else 0
 
     def play(self):
-        self.sound.play(self.loop)
+        self.__sound.play(self.__loop)
 
     def stop(self):
-        self.sound.stop()
+        self.__sound.stop()
