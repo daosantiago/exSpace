@@ -11,7 +11,7 @@ class Bullet():
         self.width, self.height = 0, 0
         self.x = p.x + (p.width / 2) - 4
         self.y = p.y
-        self.speed = 3 if p.label == 'player' else -1
+        self.speed = ships_settings[p.label]['bullet_speed']
         self.image = self.load_image('bullet')
         self.rect = pg.Surface.get_rect(self.image)
         self.visible = True
