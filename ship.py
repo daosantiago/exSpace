@@ -115,6 +115,9 @@ class Ship:
     def kill_bullet(self, bullet):
         self.__bullets.remove(bullet)
 
+    def clear_bullets(self):
+        self.__bullets.clear()
+
     def get_hit(self):
         self.__energy = self.__energy - 1
 
