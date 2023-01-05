@@ -110,6 +110,10 @@ class Player(Ship):
         self.toggle = False
         self.update()
 
+    @property
+    def just_born(self):
+        return self.__just_born
+
     def make_point(self) -> None:
         self.points += 1
 
