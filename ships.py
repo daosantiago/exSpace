@@ -60,7 +60,7 @@ class Enemy(Ship):
         self.shoot()
         for bullet in self.bullets:
             if bullet.y > 480:
-                self.__bullets.remove(bullet)
+                self.kill_bullet(bullet)
             else:
                 bullet.update()
 
@@ -102,7 +102,7 @@ class Player(Ship):
         self.last_shoot_time = 0
         self.last_update_time = 0
         self.lives = ships_settings[label]['lives']
-        self.just_born = False
+        self.__just_born = False
         self.born_time = 0
         self.born_duration = 3
         self.blink_time = 200
@@ -179,21 +179,21 @@ class Player(Ship):
         x = (self.game.width / 2) - (self.width / 2)
         y = 400
         self.set_pos(x, y)
-        self.bullets = []
+        self.clear_bullets()
         self.rect = pg.Surface.get_rect(self.images[0])
         self.last_shoot_time = 0
         self.last_update_time = 0
         self.current_frame = 0
         self.set_energy(10)
         self.dead = False
-        self.just_born = True
+        self.__just_born = True
         self.born_time = time.time()
         self.swap_images()
 
     def blink(self):
         elapsed_time = time.time() - self.born_time
         if elapsed_time > self.born_duration:
-            self.just_born = False
+            self.__just_born = False
             self.can_collide = True
 
         self.to_alpha()
