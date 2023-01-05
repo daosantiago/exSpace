@@ -37,7 +37,6 @@ class Bullet():
 class Enemy(Ship):
     def __init__(self, game, label) -> None:
         super().__init__(game, label)
-        self.width, self.height = ships_settings[label]['width'], ships_settings[label]['height']
         self.last_update_time = 0
         self.can_shoot = ships_settings[label]['can_shoot']
         self.last_shoot_time = time.time() + 0.001
