@@ -6,7 +6,7 @@ class Ship:
     def __init__(self, game, label) -> None:
         self.label = label
         self.game = game
-        self.width, self.height = ships_settings[label]['width'], ships_settings[label]['height']
+        self.__width, self.__height = ships_settings[label]['width'], ships_settings[label]['height']
         self.__x, self.__y = random.randint(10, 400), -32
         self.__energy = ships_settings[label]['energy']
         self.speed = ships_settings[label]['speed']
@@ -50,6 +50,14 @@ class Ship:
             sub_image = image.subsurface(sprite_rect)
             images_list.append(sub_image)
         return images_list
+
+    @property
+    def width(self):
+        return self.__width
+
+    @property
+    def height(self):
+        return self.__height
 
     @property
     def x(self):
